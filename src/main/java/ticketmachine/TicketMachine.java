@@ -1,30 +1,32 @@
 package ticketmachine;
 
 /**
- * TicketMachine models a naive ticket machine that issues flat-fare tickets. The price of a ticket is specified via the
- * constructor. It is a naive machine in the sense that it trusts its users to insert enough money before trying to print a
- * ticket. It also assumes that users enter sensible amounts.
+ * TicketMachine modélise une machine à tickets basique qui délivre des tickets à tarif fixe.
+ * Le prix d'un ticket est spécifié via le constructeur. C'est une machine basique au sens où
+ * elle suppose que les utilisateurs insèrent suffisamment d'argent avant d'essayer d'imprimer un ticket.
+ * Elle suppose aussi que les montants saisis sont raisonnables.
  *
  * @author David J. Barnes and Michael Kolling
  * @version 2006.03.30
  */
 public class TicketMachine {
-	// The price of a ticket from this machine.
+	// Le prix d'un ticket pour cette machine.
 	private final int price;
-	// The amount of money entered by a customer so far.
+	// Le montant d'argent inséré par un client jusqu'à présent.
 	private int balance;
-	// The total amount of money collected by this machine.
+	// Le montant total collecté par cette machine.
 	private int total;
 
 	/**
-	 * Create a machine that issues tickets of the given price.
+	 * Crée une machine qui délivre des tickets du prix indiqué.
 	 *
-	 * @param ticketCost the price of a ticket, >=0
+	 * @param ticketCost le prix d'un ticket, >= 0
 	 */
 	public TicketMachine(int ticketCost) {
 		// Test de validité du paramètre
-		if (ticketCost <= 0) {
-			throw new IllegalArgumentException("Ticket price must be positive");
+		// Le prix ne doit pas être négatif (0 est accepté)
+		if (ticketCost < 0) {
+			throw new IllegalArgumentException("Ticket price must not be negative");
 		}
 		price = ticketCost;
 		balance = 0;
@@ -32,63 +34,77 @@ public class TicketMachine {
 	}
 
 	/**
-	 * Return the price of a ticket.
+	 * Retourne le prix d'un ticket.
 	 *
-	 * @return the price of tickets for this machine
+	 * @return le prix des tickets pour cette machine
 	 */
 	public int getPrice() {
 		return price;
 	}
 
 	/**
-	 * Return the total amount collected by the machine.
+	 * Retourne le montant total collecté par la machine.
 	 *
-	 * @return the total amount collected by the machine.
+	 * @return le montant total collecté par la machine.
 	 */
 	public int getTotal() {
 		return total;
 	}
 
 	/**
-	 * @return the amount of money already inserted for the next ticket.
+	 * @return le montant d'argent déjà inséré pour le prochain ticket.
 	 */
 	public int getBalance() {
 		return balance;
 	}
 
 	/**
-	 * Receive an amount of money in cents from a customer.
+	 * Reçoit un montant (en centimes) d'un client.
 	 *
-	 * @param amount the amount inserted, in cents (positive)
-	 * @throws IllegalArgumentException if amount is not positive
+	 * @param amount le montant inséré, en centimes (positif)
+	 * @throws IllegalArgumentException si le montant n'est pas positif
 	 */
 	public void insertMoney(int amount) {
+		if (amount < 0) {
+			throw new IllegalArgumentException("Cannot insert a negative amount");
+		}
 		balance = balance + amount;
 	}
 
 	/**
-	 * Refunds the balance to customer
+	 * Rend la monnaie au client.
 	 *
-	 * @return the balance
+	 * @return le montant remboursé
 	 */
 	public int refund() {
-		System.out.println("Je vous rends : " + balance + " centimes");
-		return balance;
+		int amountToReturn = balance;
+		// Remet la balance à zéro et retourne le montant remboursé
+		balance = 0;
+		System.out.println("Je vous rends : " + amountToReturn + " centimes");
+		return amountToReturn;
 	}
 
 	/**
-	 * Print a ticket. Update the total collected and reduce the balance 
+	 * Imprime un ticket. Met à jour le total collecté et réduit la balance.
 	 *
 	 * @return vrai si le ticket a été imprimé, faux sinon
 	 */
 	public boolean printTicket() {
-		// Simulate the printing of a ticket.
+		// Vérifier si l'utilisateur a inséré suffisamment d'argent
+		if (balance < price) {
+			// Pas assez d'argent : ne pas imprimer, ne rien changer
+			return false;
+		}
+		// Simule l'impression d'un ticket.
 		System.out.println("##################");
 		System.out.println("# The BlueJ Line");
 		System.out.println("# Ticket");
 		System.out.println("# " + price + " cents.");
 		System.out.println("##################");
 		System.out.println();
+		// Mettre à jour les totaux et décrémenter la balance
+		total = total + price;
+		balance = balance - price;
 		return true;
 	}
 }
